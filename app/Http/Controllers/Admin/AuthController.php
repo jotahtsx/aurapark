@@ -54,12 +54,10 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $error_message = 'O e-mail ou a senha estão incorretos ou a conta está inativa.';
-
         if ($this->hasTooManyLoginAttempts($request)) {
             event(new Lockout($request));
 
-            return $this->sendLockoutResponse($request);
+            return back()->with('error', 'Muitas tentativas de login. Tente novamente mais tarde.');
         }
 
         $credentials = $request->validate([
@@ -74,22 +72,21 @@ class AuthController extends Controller
                 Auth::logout();
                 $this->incrementLoginAttempts($request);
 
-                return back()
-                    ->withErrors(['email' => 'Sua conta está inativa. Entre em contato com o administrador.'])
-                    ->withInput($request->only('email'));
+                return back()->with('error', 'Sua conta está inativa. Entre em contato com o administrador.')
+                             ->withInput($request->only('email'));
             }
 
             $this->clearLoginAttempts($request);
             $request->session()->regenerate();
 
-            return redirect()->intended($this->redirectTo);
+            return redirect()->intended($this->redirectTo)
+                             ->with('success', 'Login realizado com sucesso!');
         }
 
         $this->incrementLoginAttempts($request);
 
-        throw ValidationException::withMessages([
-            'email' => [$error_message],
-        ]);
+        return back()->with('error', 'O e-mail ou a senha estão incorretos ou a conta está inativa.')
+                     ->withInput($request->only('email'));
     }
 
     public function logout(Request $request)

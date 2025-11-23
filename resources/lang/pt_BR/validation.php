@@ -69,4 +69,10 @@ return [
     'unique' => 'O valor do campo :attribute já está em uso.',
     'url' => 'O formato do campo :attribute é inválido.',
     'uuid' => 'O campo :attribute deve ser um UUID válido.',
+
+    'attributes' => [
+    'password' => 'senha',
+    'email' => 'e-mail',
+    'name' => 'nome',
+    ],
 ];
