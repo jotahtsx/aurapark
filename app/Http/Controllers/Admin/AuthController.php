@@ -2,25 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends BaseController
+class AuthController extends Controller
 {
     protected $redirectTo = '/admin';
 
     public function username()
     {
         return 'email';
-    }
-
-    public function __construct()
-    {
-        $this->middleware('guest')->except('logout');
     }
 
     public function showLoginForm()
@@ -51,6 +46,7 @@ class AuthController extends BaseController
     protected function sendLockoutResponse(Request $request)
     {
         $seconds = RateLimiter::availableIn($this->throttleKey($request));
+
         throw ValidationException::withMessages([
             'email' => "Muitas tentativas de login. Tente novamente em {$seconds} segundos.",
         ])->status(429);
@@ -61,7 +57,7 @@ class AuthController extends BaseController
         $error_message = 'O e-mail ou a senha estão incorretos ou a conta está inativa.';
 
         if ($this->hasTooManyLoginAttempts($request)) {
-            event(new Lockout($request)); // Dispara o evento de bloqueio
+            event(new Lockout($request));
 
             return $this->sendLockoutResponse($request);
         }
@@ -78,11 +74,11 @@ class AuthController extends BaseController
                 Auth::logout();
                 $this->incrementLoginAttempts($request);
 
-                return back()->withErrors(['email' => 'Sua conta está inativa. Entre em contato com o administrador.'])
+                return back()
+                    ->withErrors(['email' => 'Sua conta está inativa. Entre em contato com o administrador.'])
                     ->withInput($request->only('email'));
             }
 
-            // Sucesso
             $this->clearLoginAttempts($request);
             $request->session()->regenerate();
 
@@ -90,6 +86,7 @@ class AuthController extends BaseController
         }
 
         $this->incrementLoginAttempts($request);
+
         throw ValidationException::withMessages([
             'email' => [$error_message],
         ]);
