@@ -10,7 +10,7 @@
 <body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen">
 
     <div class="mb-8 text-center">
-        <h1 class="text-4xl font-bold text-white tracking-wide">aurapark.</h1>
+        <h1 class="text-4xl font-bold text-white tracking-wide">aurapark</h1>
     </div>
 
     <div class="w-full max-w-sm bg-gray-800 rounded-xl shadow-lg p-8 flex flex-col">
