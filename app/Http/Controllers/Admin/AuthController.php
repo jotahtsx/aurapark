@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
-use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends BaseController
 {
@@ -60,23 +59,25 @@ class AuthController extends BaseController
     public function login(Request $request)
     {
         $error_message = 'O e-mail ou a senha estão incorretos ou a conta está inativa.';
-        
+
         if ($this->hasTooManyLoginAttempts($request)) {
             event(new Lockout($request)); // Dispara o evento de bloqueio
-            return $this->sendLockoutResponse($request); 
+
+            return $this->sendLockoutResponse($request);
         }
 
         $credentials = $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
-        
+
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
             if ($user->status !== 'active') {
                 Auth::logout();
                 $this->incrementLoginAttempts($request);
+
                 return back()->withErrors(['email' => 'Sua conta está inativa. Entre em contato com o administrador.'])
                     ->withInput($request->only('email'));
             }
@@ -84,6 +85,7 @@ class AuthController extends BaseController
             // Sucesso
             $this->clearLoginAttempts($request);
             $request->session()->regenerate();
+
             return redirect()->intended($this->redirectTo);
         }
 

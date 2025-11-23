@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Login - AuraPark</title>
 </head>
+
 <body>
     <h1>Tela de Login</h1>
     <p>O Laravel encontrou a view com sucesso!</p>
 
     <form method="POST" action="/login">
         @csrf
+
+        @error('email')
+            <div style="color: red; font-weight: bold;">{{ $message }}</div>
+        @enderror
+
         <label>Email:</label>
         <input type="email" name="email">
         <br>
@@ -19,4 +26,5 @@
         <button type="submit">Entrar</button>
     </form>
 </body>
+
 </html>
