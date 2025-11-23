@@ -18,7 +18,9 @@
             @csrf
 
             @error('email')
-                <div class="mb-4 text-red-500 font-semibold text-sm">{{ $message }}</div>
+                <div class="mb-4 text-red-500 font-semibold text-sm text-center">
+                    {{ $message }}
+                </div>
             @enderror
 
             <label class="block mb-2 text-sm font-medium text-gray-300" for="email">Email:</label>
@@ -32,15 +34,13 @@
                 placeholder="********">
 
             <div class="w-full mb-6 text-center">
-                <a href="#" class="text-sm text-blue-400 uppercase">
+                <a href="#" class="text-sm text-blue-400 uppercase hover:underline">
                     Recuperar minha senha
                 </a>
             </div>
 
             <button type="submit"
-                class="relative w-full py-5 mt-2 font-bold text-blue-400 uppercase
-                       border-2 border-blue-400 rounded-lg tracking-wider
-                       overflow-hidden cursor-pointer transition-colors duration-500 ease-in-out liquid-fill">
+                class="relative w-full py-5 mt-2 font-bold text-blue-400 uppercase border-2 border-blue-400 rounded-lg tracking-wider overflow-hidden cursor-pointer transition-colors duration-500 ease-in-out liquid-fill">
                 <span class="relative z-10 transition-colors duration-500 ease-in-out">
                     Fazer Login
                 </span>
