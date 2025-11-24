@@ -3,46 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login - AuraPark</title>
+    <title>Entrar - AuraPark</title>
     @vite(['resources/css/app.css', 'resources/css/auth.css', 'resources/js/app.js'])
-
-    <style>
-        body {
-            font-family: Inter, sans-serif;
-        }
-
-        .liquid-fill {
-            position: relative;
-            z-index: 0;
-        }
-
-        .liquid-fill::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: theme('colors.blue.400');
-            transition: transform 0.5s ease-in-out;
-            transform: scaleX(0);
-            /* Começa invisível */
-            transform-origin: left;
-            z-index: -1;
-        }
-
-        .liquid-fill:hover::before {
-            transform: scaleX(1);
-        }
-
-        .liquid-fill:hover span {
-            color: theme('colors.gray.900');
-            /* Texto escuro quando preenchido */
-        }
-    </style>
 </head>
 
-<body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen relative">
+<body class="font-sans bg-gray-900 flex flex-col items-center justify-center min-h-screen relative">
     @php
         $flashType = $errors->any() ? 'error' : null;
         $flashMessage = $errors->any() ? $errors->first() : null;
@@ -57,7 +22,6 @@
         <x-flash :type="$flashType" :message="$flashMessage" />
     @endif
 
-    {{-- Título --}}
     <div class="mb-8 text-center">
         <h1 class="text-4xl font-bold text-white tracking-wide">AuraPark</h1>
     </div>

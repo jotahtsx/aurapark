@@ -1,14 +1,17 @@
-/** @type {import('tailwindcss').Config} */
+import daisyui from "daisyui";
+
 export default {
     content: [
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
         "./resources/**/*.vue",
     ],
-    plugins: [
-        require('daisyui'),
-    ],
-    daisyui: {
-        themes: ["light", "dark"],
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ["Raleway", "sans-serif"],
+            },
+        },
     },
+    plugins: [daisyui],
 };
