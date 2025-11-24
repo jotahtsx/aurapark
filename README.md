@@ -1,27 +1,88 @@
-# 🅿️ AuraPark: Sistema de Gerenciamento de Estacionamento
+# AuraPark --- Painel Administrativo
 
-Bem-vindo(a) ao repositório do **AuraPark**, um sistema de gerenciamento de vagas e fluxo de veículos desenvolvido em Laravel.
+Projeto desenvolvido em Laravel + TailwindCSS, utilizando PostgreSQL em
+container Docker.
 
-Este projeto visa simplificar a administração de estacionamentos, desde o registro de entrada/saída de veículos até o controle de vagas e relatórios.
+## 🚀 Requisitos
 
----
+Antes de começar, certifique-se de ter instalado:
 
-## 🚀 Como Iniciar o Projeto (Setup Local)
+-   **PHP 8.2+**
+-   **Composer**
+-   **Node.js + NPM**
+-   **Docker** e **Docker Compose**
+-   **Git**
 
-Siga os passos abaixo para configurar o ambiente de desenvolvimento e executar o sistema localmente.
+## 📦 Instalação
 
-### 1. Requisitos
+### 1. Clonar o repositório
 
-Certifique-se de que você tem instalado:
+    git clone https://github.com/jotahtsx/aurapark.git
+    cd aurapark
 
-* **PHP** (versão mínima 8.2+)
-* **Composer** (Gerenciador de Dependências)
-* **Banco de Dados** (MySQL/MariaDB ou SQLite)
+### 2. Instalar dependências do PHP
 
-### 2. Instalação de Dependências
+    composer install
 
-Clone este repositório e instale as dependências do Laravel:
+### 3. Instalar dependências do Node
 
-```bash
-git clone https://github.com/jotahtsx/aurapark
-composer install
+    npm install
+
+### 4. Criar o arquivo `.env`
+
+    cp .env.example .env
+
+### 5. Gerar a chave da aplicação
+
+    php artisan key:generate
+
+## 🐘 Banco de Dados com Docker
+
+### 1. Subir o container PostgreSQL
+
+    docker compose up -d
+
+### 2. Rodar as migrações
+
+    php artisan migrate
+
+Para popular com seeds:
+
+    php artisan db:seed
+
+## ▶️ Executando o projeto
+
+### 1. Iniciar o servidor Laravel
+
+    php artisan serve
+
+### 2. Iniciar o Vite (Tailwind)
+
+    npm run dev
+
+## 📂 Estrutura Principal
+
+    aurapark/
+    │
+    ├── app/
+    ├── resources/
+    │   ├── views/
+    │   ├── css/
+    │   ├── js/
+    │
+    ├── routes/
+    │   └── web.php
+    │
+    └── docker-compose.yml
+
+## 🧪 Testes
+
+    php artisan test
+
+## 📜 Licença
+
+Projeto privado sem licença pública configurada.
+
+## 👨‍💻 Autor
+
+Desenvolvido por **jotahdev**.
