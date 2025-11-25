@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    protected $redirectTo = '/admin';
+    protected $redirectTo = '/dashboard';
 
     public function username()
     {
@@ -48,7 +48,7 @@ class AuthController extends Controller
         $seconds = RateLimiter::availableIn($this->throttleKey($request));
 
         throw ValidationException::withMessages([
-            'email' => "Muitas tentativas de login. Tente novamente em {$seconds} segundos.",
+            $this->username() => "Muitas tentativas de login. Tente novamente em {$seconds} segundos.",
         ])->status(429);
     }
 
@@ -61,23 +61,13 @@ class AuthController extends Controller
         }
 
         $credentials = $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
-            if ($user->status !== 'active') {
-                Auth::logout();
-                $this->incrementLoginAttempts($request);
-
-                return back()->with('error', 'Sua conta está inativa. Entre em contato com o administrador.')
-                             ->withInput($request->only('email'));
-            }
-
-            $this->clearLoginAttempts($request);
             $request->session()->regenerate();
+            $this->clearLoginAttempts($request);
 
             return redirect()->intended($this->redirectTo)
                              ->with('success', 'Login realizado com sucesso!');
@@ -85,8 +75,9 @@ class AuthController extends Controller
 
         $this->incrementLoginAttempts($request);
 
-        return back()->with('error', 'O e-mail ou a senha estão incorretos ou a conta está inativa.')
-                     ->withInput($request->only('email'));
+        return back()->withErrors([
+            'email' => 'E-mail ou senha incorretos.',
+        ]);
     }
 
     public function logout(Request $request)
@@ -95,6 +86,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login')->with('success', 'Você saiu com sucesso!');
     }
 }
