@@ -16,10 +16,10 @@
             <h2 class="text-3xl font-bold mt-2">128</h2>
         </div>
 
-                    <div class="p-6 bg-base-200 rounded-xl shadow hover:shadow-lg transition">
-                        <p class="text-sm text-base-content/70">Reservas Hoje</p>
-                        <h2 class="text-3xl font-bold mt-2">32</h2>
-                    </div>
+        <div class="p-6 bg-base-200 rounded-xl shadow hover:shadow-lg transition">
+            <p class="text-sm text-base-content/70">Reservas Hoje</p>
+            <h2 class="text-3xl font-bold mt-2">32</h2>
+        </div>
 
         <div class="p-6 bg-base-200 rounded-xl shadow hover:shadow-lg transition">
             <p class="text-sm text-base-content/70">Notificações</p>

@@ -8,20 +8,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
-
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
-
     Route::get('/dashboard', function () {
-        return view('dashboard.home'); // <-- ajuste aqui
+        return view('dashboard.home');
     })->name('dashboard.home');
-
 });
 
-Route::get('/', function () {
-    return redirect()->route('dashboard.home');
-});
+Route::get('/', fn () => redirect()->route('dashboard.home'));
