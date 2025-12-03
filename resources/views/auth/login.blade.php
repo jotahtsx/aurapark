@@ -36,18 +36,20 @@
 
             <label class="block mb-1 text-sm font-medium">Senha:</label>
             <input type="password" name="password"
-                class="w-full mb-6 px-4 py-3 rounded-lg bg-gray-100 focus:outline-none focus:ring-2"
+                class="w-full mb-4 px-4 py-3 rounded-lg bg-gray-100 focus:outline-none focus:ring-2"
                 placeholder="********">
 
             <div class="mb-6 text-center">
-                <a href="#" class="text-sm text-blue-600 hover:underline uppercase">Recuperar minha senha</a>
+                <a href="#" class="text-xs text-gray-600 hover:underline uppercase">Recuperar minha senha</a>
             </div>
 
             <button type="submit"
-                class="w-full py-3 rounded-lg font-bold border-2 border-blue-600 text-blue-600 hover:shadow-lg transition">Fazer
-                Login</button>
+                class="liquid-fill relative overflow-hidden w-full py-3 rounded-lg font-bold border-2 border-blue-600 text-blue-600 transition hover:shadow-lg">
 
-            <p class="mt-6 text-xs text-center text-gray-500">Ao fazer login você concorda com os termos.</p>
+                <span class="relative z-10">Fazer Login</span>
+            </button>
+
+            <p class="mt-6 text-sm text-center text-gray-500">Ao fazer login você concorda com os termos.</p>
         </form>
     </div>
 
