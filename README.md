@@ -1,88 +1,179 @@
 # AuraPark --- Painel Administrativo
 
-Projeto desenvolvido em Laravel + TailwindCSS, utilizando PostgreSQL em
-container Docker.
+Painel administrativo desenvolvido com **Laravel**, **TailwindCSS** e
+**PostgreSQL**, utilizando **Docker** para padronização do ambiente de
+banco de dados.
+
+O projeto foi estruturado para facilitar o onboarding de novos
+desenvolvedores, mantendo boas práticas de configuração, versionamento e
+isolamento de ambiente.
+
+------------------------------------------------------------------------
+
+## 🧱 Stack Utilizada
+
+-   **Laravel 12**
+-   **PHP 8.2+**
+-   **PostgreSQL 16 (Docker)**
+-   **TailwindCSS**
+-   **Vite**
+-   **Docker & Docker Compose**
+-   **Node.js + NPM**
+-   **Git**
+
+------------------------------------------------------------------------
 
 ## 🚀 Requisitos
 
-Antes de começar, certifique-se de ter instalado:
+Antes de iniciar, certifique-se de ter instalado:
 
--   **PHP 8.2+**
--   **Composer**
--   **Node.js + NPM**
--   **Docker** e **Docker Compose**
--   **Git**
+-   PHP **8.2 ou superior**
+-   Composer
+-   Node.js (18+ recomendado)
+-   Docker e Docker Compose
+-   Git
+
+------------------------------------------------------------------------
 
 ## 📦 Instalação
 
 ### 1. Clonar o repositório
 
-    git clone https://github.com/jotahtsx/aurapark.git
-    cd aurapark
+``` bash
+git clone https://github.com/jotahtsx/aurapark.git
+cd aurapark
+```
+
+------------------------------------------------------------------------
 
 ### 2. Instalar dependências do PHP
 
-    composer install
+``` bash
+composer install
+```
 
-### 3. Instalar dependências do Node
+------------------------------------------------------------------------
 
-    npm install
+### 3. Instalar dependências do frontend
 
-### 4. Criar o arquivo `.env`
+``` bash
+npm install
+```
 
-    cp .env.example .env
+------------------------------------------------------------------------
+
+### 4. Criar o arquivo de ambiente
+
+``` bash
+cp .env.example .env
+```
+
+> ⚠️ **Importante:**\
+> Edite o arquivo `.env` conforme necessário, principalmente as
+> variáveis de banco de dados.
+
+------------------------------------------------------------------------
 
 ### 5. Gerar a chave da aplicação
 
-    php artisan key:generate
+``` bash
+php artisan key:generate
+```
 
-## 🐘 Banco de Dados com Docker
+------------------------------------------------------------------------
 
-### 1. Subir o container PostgreSQL
+## 🐘 Banco de Dados (PostgreSQL com Docker)
 
-    docker compose up -d
+### 1. Subir o container do banco
+
+``` bash
+docker compose up -d
+```
+
+------------------------------------------------------------------------
 
 ### 2. Rodar as migrações
 
-    php artisan migrate
+``` bash
+php artisan migrate
+```
 
-Para popular com seeds:
+------------------------------------------------------------------------
 
-    php artisan db:seed
+### 3. Popular o banco com dados fake (opcional)
 
-## ▶️ Executando o projeto
+``` bash
+php artisan db:seed
+```
 
-### 1. Iniciar o servidor Laravel
+------------------------------------------------------------------------
 
-    php artisan serve
+## ▶️ Executando o Projeto
 
-### 2. Iniciar o Vite (Tailwind)
+### Backend (Laravel)
 
-    npm run dev
+``` bash
+php artisan serve
+```
 
-## 📂 Estrutura Principal
+A aplicação ficará disponível em:\
+👉 `http://localhost:8000`
 
-    aurapark/
-    │
-    ├── app/
-    ├── resources/
-    │   ├── views/
-    │   ├── css/
-    │   ├── js/
-    │
-    ├── routes/
-    │   └── web.php
-    │
-    └── docker-compose.yml
+------------------------------------------------------------------------
+
+### Frontend (Vite + Tailwind)
+
+``` bash
+npm run dev
+```
+
+------------------------------------------------------------------------
+
+## 📂 Estrutura do Projeto
+
+``` text
+aurapark/
+├── app/
+├── database/
+│   ├── migrations/
+│   ├── seeders/
+│   └── factories/
+├── resources/
+│   ├── views/
+│   ├── css/
+│   └── js/
+├── routes/
+│   └── web.php
+├── docker-compose.yml
+└── README.md
+```
+
+------------------------------------------------------------------------
 
 ## 🧪 Testes
 
-    php artisan test
+``` bash
+php artisan test
+```
+
+------------------------------------------------------------------------
+
+## 🔐 Controle de Versão (.env)
+
+O arquivo `.env` **não deve ser versionado**.
+
+Sempre que clonar o projeto: 1. Copie o `.env.example` 2. Gere a chave
+3. Ajuste as variáveis conforme o ambiente
+
+------------------------------------------------------------------------
 
 ## 📜 Licença
 
-Projeto privado sem licença pública configurada.
+Projeto privado.\
+Nenhuma licença pública definida no momento.
+
+------------------------------------------------------------------------
 
 ## 👨‍💻 Autor
 
-Desenvolvido por **jotahdev**.
+Desenvolvido por **jotahdev**
