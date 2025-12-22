@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -14,6 +15,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard.home');
     })->name('dashboard.home');
+    Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.users.index');
 });
 
 Route::get('/', fn () => redirect()->route('dashboard.home'));
