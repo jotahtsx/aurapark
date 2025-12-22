@@ -11,10 +11,10 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Usuário fixo
         User::create([
             'name' => 'Sexta',
             'last_name' => 'Feira',
+            'avatar' => 'https://i.pravatar.cc/150?u=friday@aurapark.com',
             'email' => 'friday@aurapark.com',
             'email_verified_at' => now(),
             'status' => 'active',
@@ -27,11 +27,16 @@ class UserSeeder extends Seeder
             $faker = FakerFactory::create($locale);
 
             for ($i = 0; $i < 5; $i++) {
-                User::factory()->create([
+                $email = $faker->unique()->safeEmail();
+
+                User::create([
                     'name' => $faker->firstName(),
                     'last_name' => $faker->lastName(),
-                    'email' => $faker->unique()->safeEmail(),
-                    'status' => $faker->boolean(50) ? 'active' : 'inactive',
+                    'avatar' => "https://i.pravatar.cc/150?u={$email}",
+                    'email' => $email,
+                    'email_verified_at' => now(),
+                    'status' => $faker->boolean(80) ? 'active' : 'inactive',
+                    'password' => Hash::make('password'),
                 ]);
             }
         }
