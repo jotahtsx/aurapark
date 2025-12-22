@@ -1,6 +1,8 @@
 import daisyui from "daisyui";
 
 export default {
+    darkMode: "class", 
+    
     content: [
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
@@ -17,20 +19,18 @@ export default {
         themes: [
             {
                 light: {
-                    "primary": "#6366f1",
-                    "base-100": "#f9fafb",
-                    "base-200": "#e5e7eb",
-                    "base-content": "#111827",
-                    "accent": "#fbbf24",
-                    "neutral": "#d1d5db",
+                    "primary": "#3b82f6",
+                    "base-100": "#ffffff",
+                    "base-200": "#f8fafc",
+                    "base-300": "#e2e8f0",
+                    "base-content": "#0f172a",
                 },
                 dark: {
-                    "primary": "#818cf8",
-                    "base-100": "#1f2937",
-                    "base-200": "#374151",
-                    "base-content": "#f3f4f6",
-                    "accent": "#fbbf24",
-                    "neutral": "#4b5563",
+                    "primary": "#60a5fa",
+                    "base-100": "#0f172a",
+                    "base-200": "#1e293b",
+                    "base-300": "#334155",
+                    "base-content": "#f8fafc",
                 },
             },
         ],
