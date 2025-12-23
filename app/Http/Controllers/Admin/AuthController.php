@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    protected $redirectTo = '/dashboard';
+    protected $redirectTo = '/home';
 
     public function username()
     {

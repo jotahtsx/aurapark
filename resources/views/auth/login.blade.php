@@ -1,58 +1,72 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrar - AuraPark</title>
-    @vite(['resources/css/app.css', 'resources/css/auth.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans flex items-center justify-center min-h-screen bg-gray-100 text-gray-900">
+<body class="font-sans flex items-center justify-center min-h-screen bg-[#070708] text-slate-200 p-6 flex-col">
 
-    <div class="absolute top-6 right-6 w-full max-w-sm z-50 flex flex-col gap-2">
+    {{-- Flash Messages Floating --}}
+    <div class="fixed top-6 right-6 w-full max-w-sm z-[100] flex flex-col items-end pointer-events-none space-y-2">
         @foreach ($errors->all() as $error)
-            <x-flash type="error" :message="$error" />
+            <x-layouts.flash type="error" :message="$error" />
         @endforeach
-
-        @if (session('success'))
-            <x-flash type="success" :message="session('success')" />
+        
+        @if (session('success')) 
+            <x-layouts.flash type="success" :message="session('success')" /> 
         @endif
 
-        @if (session('error'))
-            <x-flash type="error" :message="session('error')" />
+        @if (session('error')) 
+            <x-layouts.flash type="error" :message="session('error')" /> 
         @endif
     </div>
 
-    <div class="w-full max-w-sm rounded-xl shadow-lg p-8 bg-white">
-        <h1 class="text-4xl font-bold mb-6 text-center">AuraPark</h1>
+    {{-- Brilho de fundo --}}
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] h-[400px] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none"></div>
 
-        <form method="POST" action="{{ route('login') }}">
+    {{-- BRAND FORA DA CAIXA --}}
+    <div class="mb-8 relative z-10">
+        <h1 class="text-4xl font-black tracking-tighter text-white">Aura<span class="text-blue-500">Park</span></h1>
+    </div>
+
+    {{-- CARD --}}
+    <div class="w-full max-w-[380px] rounded-[32px] p-8 md:p-10 bg-[#0b0b0d] border border-white/[0.05] shadow-2xl relative z-10">
+
+        <form method="POST" action="{{ route('login') }}" class="space-y-5">
             @csrf
 
-            <label class="block mb-1 text-sm font-medium">Email:</label>
-            <input type="email" name="email" value="{{ old('email') }}"
-                class="w-full mb-4 px-4 py-3 rounded-lg bg-gray-100 focus:outline-none focus:ring-2"
-                placeholder="seuemail@exemplo.com">
-
-            <label class="block mb-1 text-sm font-medium">Senha:</label>
-            <input type="password" name="password"
-                class="w-full mb-4 px-4 py-3 rounded-lg bg-gray-100 focus:outline-none focus:ring-2"
-                placeholder="********">
-
-            <div class="mb-6 text-center">
-                <a href="#" class="text-xs text-gray-600 hover:underline uppercase">Recuperar minha senha</a>
+            <div class="space-y-2">
+                <label class="block text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 ml-1">E-mail</label>
+                <input type="email" name="email" value="{{ old('email') }}"
+                    class="w-full px-5 py-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-white outline-none focus:border-blue-500/30 focus:bg-white/[0.04] transition-all duration-300 text-sm placeholder:text-slate-800"
+                    placeholder="nome@aurapark.com">
             </div>
 
-            <button type="submit"
-                class="liquid-fill relative overflow-hidden w-full py-3 rounded-lg font-bold border-2 border-blue-600 text-blue-600 transition hover:shadow-lg">
+            <div class="space-y-2">
+                <label class="block text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 ml-1">Senha</label>
+                <input type="password" name="password"
+                    class="w-full px-5 py-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-white outline-none focus:border-blue-500/30 focus:bg-white/[0.04] transition-all duration-300 text-sm placeholder:text-slate-800"
+                    placeholder="••••••••">
+            </div>
 
-                <span class="relative z-10">Fazer Login</span>
-            </button>
+            <div class="flex items-center justify-center pt-2">
+                <a href="#" class="text-[9px] font-bold text-slate-700 hover:text-blue-400 transition-colors uppercase tracking-widest">
+                    Esqueceu a senha?
+                </a>
+            </div>
 
-            <p class="mt-6 text-sm text-center text-gray-500">Ao fazer login você concorda com os termos.</p>
+            <div class="pt-2">
+                <button type="submit"
+                    class="w-full py-5 rounded-xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/10 hover:bg-blue-500 hover:shadow-blue-500/20 transition-all duration-300 active:scale-[0.98] flex items-center justify-center group cursor-pointer border-none outline-none">
+                    <span class="uppercase text-sm tracking-[0.25em]">Fazer Login</span>
+                </button>
+            </div>
         </form>
     </div>
 
 </body>
-
 </html>

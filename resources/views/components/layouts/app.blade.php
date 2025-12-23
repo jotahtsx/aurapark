@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="{{ old('') }}">
+<html lang="pt-BR">
 
 <head>
     <meta charset="utf-8" />
@@ -25,31 +25,44 @@
         }
     }"
     x-init="document.documentElement.setAttribute('data-theme', theme); lucide.createIcons();"
-    class="antialiased">
+    class="antialiased bg-base-200/50 min-h-screen">
+    <div class="fixed top-6 right-6 w-full max-w-[350px] z-[9999] flex flex-col gap-3 pointer-events-none">
+        @foreach ($errors->all() as $error)
+            <x-layouts.flash type="error" :message="$error" />
+        @endforeach
 
+        @if (session('success'))
+            <x-layouts.flash type="success" :message="session('success')" />
+        @endif
+
+        @if (session('error'))
+            <x-layouts.flash type="error" :message="session('error')" />
+        @endif
+    </div>
+
+    {{-- 2. ESTRUTURA (Header e Sidebar fixa) --}}
     @include('components.layouts.header')
-
     @include('components.layouts.sidebar')
 
-    <main class="main-content px-8">
-        <div class="max-w-3xl mx-auto">
-            <div class="mb-6">
-                @foreach ($errors->all() as $error)
-                <x-flash type="error" :message="$error" />
-                @endforeach
-
-                @if (session('success'))
-                <x-flash type="success" :message="session('success')" />
-                @endif
-
-                @if (session('error'))
-                <x-flash type="error" :message="session('error')" />
-                @endif
+    {{-- 3. CONTEÚDO (Com as margens corrigidas) --}}
+    {{-- pl-64 assume que sua sidebar tem 256px de largura. pt-20 assume o tamanho do header --}}
+    <main class="transition-all duration-300 pt-20 lg:pl-64">
+        <div class="p-8">
+            <div class="max-w-7xl mx-auto">
+                @yield('content')
             </div>
         </div>
-
-        @yield('content')
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+        // Reinicializa ícones após navegação se usar Livewire/Turbolinks
+        document.addEventListener('livewire:navigated', () => { 
+            lucide.createIcons(); 
+        });
+    </script>
 </body>
 
 </html>

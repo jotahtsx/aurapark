@@ -69,55 +69,76 @@
         </div>
     </div>
 
-</div> {{-- FECHA O GRID DE MÉTRICAS --}}
+</div>
 
-{{-- TÍTULO DA SEÇÃO DE VAGAS --}}
 <div class="flex items-center gap-3 mb-8 mt-12">
     <div class="w-2 h-8 bg-primary rounded-full"></div>
     <h2 class="text-2xl font-bold text-base-content">Situação de Vagas (Mapa em Tempo Real)</h2>
 </div>
 
-{{-- GRID DE SETORES (MAPA) --}}
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-10">
 
     @php
-    $setores = [
-        ['nome' => 'Veículo Pequeno', 'cor' => 'bg-lime-100 text-lime-800 border-lime-200'],
-        ['nome' => 'Veículo Médio', 'cor' => 'bg-emerald-100 text-emerald-800 border-emerald-200'],
-        ['nome' => 'Veículo Grande', 'cor' => 'bg-green-100 text-green-800 border-green-200'],
-        ['nome' => 'Moto', 'cor' => 'bg-teal-100 text-teal-800 border-teal-200'],
+    $categories = [
+    ['nome' => 'Veículo Pequeno', 'cor_base' => 'emerald', 'icon' => 'car'],
+    ['nome' => 'Veículo Médio', 'cor_base' => 'lime', 'icon' => 'car-front'],
+    ['nome' => 'Veículo Grande', 'cor_base' => 'amber', 'icon' => 'truck'],
+    ['nome' => 'Motos', 'cor_base' => 'sky', 'icon' => 'bike'],
     ];
     @endphp
 
-    @foreach($setores as $setor)
-        <div class="bg-base-100 border border-base-300 rounded-3xl p-6 shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full {{ explode(' ', $setor['cor'])[0] }}"></span>
-                    {{ $setor['nome'] }}
-                </h3>
-                <span class="text-[10px] font-black opacity-40 uppercase tracking-widest">30 Vagas</span>
+    @foreach($categories as $cat)
+    <div class="bg-base-100 border border-base-300 rounded-3xl p-6 shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-xl bg-{{ $cat['cor_base'] }}-100 text-{{ $cat['cor_base'] }}-800">
+                    <i data-lucide="{{ $cat['icon'] }}" class="w-5 h-5"></i>
+                </div>
+                <h3 class="font-bold text-lg">{{ $cat['nome'] }}</h3>
             </div>
-
-            <div class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2">
-                @for ($i = 1; $i <= 30; $i++)
-                    @php
-                        $estaOcupada = in_array($i, [5, 10, 18, 25]);
-                    @endphp
-
-                    <button class="aspect-square flex flex-col items-center justify-center rounded-xl border text-[10px] font-bold transition-all hover:scale-110 active:scale-95
-                        {{ $estaOcupada 
-                            ? 'bg-base-300 border-base-400 text-base-content/30 cursor-not-allowed' 
-                            : $setor['cor'] . ' hover:shadow-lg shadow-sm border-current opacity-80' 
-                        }}">
-                        <span class="opacity-50 text-[8px]">VAGA</span>
-                        {{ str_pad($i, 2, '0', STR_PAD_LEFT) }}
-                    </button>
-                @endfor
+            <div class="flex flex-col items-end">
+                <span class="text-[10px] font-black opacity-40 uppercase tracking-widest">Capacidade 30</span>
             </div>
         </div>
-    @endforeach
 
-</div> {{-- FECHA O GRID DE SETORES --}}
+        <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            @for ($i = 1; $i <= 30; $i++)
+                @php
+                $isBusy=in_array($i, [3, 10, 11, 22, 25]);
+                @endphp
+                <button
+                @if($isBusy) disabled @endif
+                class="aspect-square flex flex-col items-center justify-center rounded-xl border-2 text-[10px] font-bold transition-all transform active:scale-95
+                        {{ $isBusy 
+                            ? 'bg-red-50 border-red-200 text-red-600 cursor-not-allowed shadow-inner' 
+                            : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-400 hover:-translate-y-1 shadow-sm' 
+                        }}">
+
+                <span class="text-xs">{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}</span>
+
+                <div class="mt-0.5">
+                    @if($isBusy)
+                    <i data-lucide="lock" class="w-2.5 h-2.5 opacity-60"></i>
+                    @else
+                    <i data-lucide="check" class="w-2.5 h-2.5 opacity-60"></i>
+                    @endif
+                </div>
+                </button>
+                @endfor
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-base-200 flex gap-4">
+            <div class="flex items-center gap-1.5">
+                <div class="w-3 h-3 rounded bg-green-500"></div>
+                <span class="text-[10px] font-bold opacity-60">LIVRE</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <div class="w-3 h-3 rounded bg-red-500"></div>
+                <span class="text-[10px] font-bold opacity-60">OCUPADA</span>
+            </div>
+        </div>
+    </div>
+    @endforeach
+</div>
 
 @endsection
