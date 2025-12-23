@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DashboardController; // Adicione esta linha
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -12,9 +13,8 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard.home');
-    })->name('dashboard.home');
+    Route::get('/home', [DashboardController::class, 'index'])->name('dashboard.home');
+    
     Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.users.index');
 });
 
