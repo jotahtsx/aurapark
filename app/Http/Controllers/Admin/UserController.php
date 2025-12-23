@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -33,7 +34,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validação rigorosa
         $request->validate([
             'name'      => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -44,7 +44,7 @@ class UserController extends Controller
         ]);
 
         $data = $request->only(['name', 'last_name', 'email', 'status']);
-        
+
         $data['password'] = Hash::make($request->password);
 
         if ($request->hasFile('avatar')) {
@@ -55,6 +55,39 @@ class UserController extends Controller
         User::create($data);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Usuário ' . $request->name . ' foi cadastrado com sucesso!');
+            ->with('success', 'Usuário ' . $request->name . ' foi cadastrado com sucesso.');
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'status' => 'required|in:active,inactive',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'password' => 'nullable|min:8',
+        ]);
+
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            unset($validated['password']);
+        }
+
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $path;
+        }
+
+        $user->update($validated);
+
+        return back()->with('success', 'Usuário ' . $request->name . ' foi atualizado com sucesso.');
     }
 }

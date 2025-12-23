@@ -105,9 +105,19 @@
                     </td>
                     <th class="text-right pr-4">
                         <div class="flex justify-end gap-1">
-                            <button class="btn btn-ghost btn-sm btn-square hover:text-primary transition-colors" title="Editar">
-                                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            </button>
+                            <a href="javascript:void(0)"
+                                @click="$dispatch('edit-user', { 
+            id: {{ $user->id }}, 
+            name: '{{ $user->name }}', 
+            last_name: '{{ $user->last_name }}', 
+            email: '{{ $user->email }}', 
+            status: '{{ $user->status }}',
+            avatar: '{{ $user->avatar }}'
+       })"
+                                class="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer group"
+                                title="Editar Usuário">
+                                <i data-lucide="edit-3" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                            </a>
                             <button class="btn btn-ghost btn-sm btn-square hover:text-error transition-colors" title="Excluir">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
@@ -162,19 +172,18 @@
 
 @endsection
 <dialog id="new_user_modal" class="modal modal-bottom sm:modal-middle">
-    {{-- max-h-[90vh] e flex-col são essenciais aqui para o scroll funcionar --}}
     <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-base-content/5">
-        
+
         <div class="px-8 py-6 border-b border-base-200 bg-base-100 shrink-0">
             <h3 class="text-xl font-black tracking-tighter text-base-content">Cadastrar Usuário</h3>
             <p class="text-[10px] text-base-content/40 font-bold uppercase tracking-widest mt-1">Habilite um novo acesso ao sistema</p>
         </div>
 
-        <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data" 
+        <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data"
             x-data="{ photoPreview: null }" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             <div class="flex-1 overflow-y-auto p-8 pt-6 space-y-8 custom-scrollbar scroll-smooth">
-                
+
                 <div class="flex flex-col items-center group">
                     <label class="relative cursor-pointer hover:scale-105 active:scale-95 transition-all">
                         <div class="w-24 h-24 rounded-[32px] bg-base-200/50 flex items-center justify-center border-2 border-dashed border-base-content/10 overflow-hidden shadow-inner">
@@ -195,7 +204,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                    
+
                     <div class="form-control group">
                         <label class="label py-1 ml-1">
                             <span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Nome</span>
@@ -242,20 +251,118 @@
             </div>
 
             <div class="p-6 bg-base-100 border-t border-base-200/60 flex items-center justify-end gap-3 shrink-0">
-                <button type="button" @click="new_user_modal.close()" 
+                <button type="button" @click="new_user_modal.close()"
                     class="px-6 py-3 font-bold text-[10px] uppercase tracking-widest opacity-30 hover:opacity-100 transition-all">
                     Cancelar
                 </button>
-                <button type="submit" 
+                <button type="submit"
                     class="px-10 py-4 rounded-2xl font-black bg-primary text-primary-content shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-95 uppercase text-[10px] tracking-[0.2em]">
                     Salvar Registro
                 </button>
             </div>
         </form>
     </div>
-    
+
     {{-- Backdrop --}}
     <form method="dialog" class="modal-backdrop backdrop-blur-md bg-base-content/10">
         <button>close</button>
     </form>
+</dialog>
+
+
+<dialog id="edit_user_modal" class="modal modal-bottom sm:modal-middle" x-data="{ 
+    editPhotoPreview: null,
+    userName: '',
+    userEmail: '',
+    userLastName: '',
+    userStatus: 'active',
+    userId: null
+}"
+    {{-- Evento para preencher o modal via JS --}}
+    @edit-user.window="
+    userId = $event.detail.id;
+    userName = $event.detail.name;
+    userLastName = $event.detail.last_name;
+    userEmail = $event.detail.email;
+    userStatus = $event.detail.status;
+    editPhotoPreview = $event.detail.avatar ? '/storage/' + $event.detail.avatar : null;
+    $el.showModal();
+">
+    <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-base-content/5">
+
+        <div class="px-8 py-6 border-b border-base-200 bg-base-100 shrink-0 flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-black uppercase tracking-tighter text-base-content">Editar Perfil</h3>
+                <p class="text-[10px] text-base-content/40 font-bold uppercase tracking-widest mt-1">Atualize as credenciais do operador</p>
+            </div>
+            <button @click="edit_user_modal.close()" class="btn btn-sm btn-circle btn-ghost opacity-30">✕</button>
+        </div>
+
+        <form :action="'/admin/users/' + userId" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
+            @csrf
+            @method('PUT')
+
+            <div class="flex-1 overflow-y-auto p-8 pt-6 space-y-8 custom-scrollbar scroll-smooth">
+
+                <div class="flex flex-col items-center group">
+                    <label class="relative cursor-pointer hover:scale-105 transition-all">
+                        <div class="w-24 h-24 rounded-[32px] bg-base-200 flex items-center justify-center border-2 border-dashed border-base-content/10 overflow-hidden shadow-inner">
+                            <template x-if="!editPhotoPreview">
+                                <span class="text-2xl font-black text-base-content/20" x-text="userName.charAt(0)"></span>
+                            </template>
+                            <template x-if="editPhotoPreview">
+                                <img :src="editPhotoPreview" class="w-full h-full object-cover">
+                            </template>
+                        </div>
+                        <input type="file" name="avatar" class="hidden" @change="const file = $event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { editPhotoPreview = e.target.result; }; reader.readAsDataURL(file); }">
+                    </label>
+                    <p class="text-[10px] text-primary font-bold uppercase mt-3 tracking-widest">Alterar Foto</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="form-control group">
+                        <label class="label"><span class="label-text font-bold text-[10px] uppercase opacity-40">Nome</span></label>
+                        <input type="text" name="name" x-model="userName" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all" />
+                    </div>
+
+                    <div class="form-control group">
+                        <label class="label"><span class="label-text font-bold text-[10px] uppercase opacity-40">Sobrenome</span></label>
+                        <input type="text" name="last_name" x-model="userLastName" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all" />
+                    </div>
+
+                    <div class="form-control md:col-span-2 group">
+                        <label class="label"><span class="label-text font-bold text-[10px] uppercase opacity-40">E-mail</span></label>
+                        <input type="email" name="email" x-model="userEmail" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all" />
+                    </div>
+
+                    <div class="form-control md:col-span-2 group p-4 bg-primary/5 rounded-2xl border border-primary/10 mt-2">
+                        <label class="label py-0"><span class="label-text font-bold text-[10px] uppercase text-primary">Alterar Senha (Opcional)</span></label>
+                        <input type="password" name="password" placeholder="Deixe em branco para manter a atual"
+                            class="input bg-transparent border-none px-0 focus:outline-none text-sm placeholder:text-primary/30" />
+                    </div>
+                    <div class="form-control md:col-span-2">
+                        <label class="label">
+                            <span class="label-text font-bold text-[10px] uppercase opacity-40">Status do Operador</span>
+                        </label>
+
+                        <select name="status"
+                            x-model="userStatus"
+                            class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:bg-base-100 transition-all text-xs font-bold uppercase px-5 cursor-pointer">
+
+                            <option value="active">🟢 Ativo</option>
+                            <option value="inactive">🔴 Inativo</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-base-100 border-t border-base-200 flex items-center justify-end gap-3 shrink-0">
+                <button type="button" @click="edit_user_modal.close()" class="btn btn-ghost font-bold text-[10px] uppercase tracking-widest">Cancelar</button>
+                <button type="submit" class="px-10 py-4 rounded-2xl font-black bg-primary text-primary-content shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all uppercase text-[10px] tracking-widest">
+                    Atualizar Dados
+                </button>
+            </div>
+        </form>
+    </div>
 </dialog>

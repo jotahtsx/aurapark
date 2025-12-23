@@ -14,10 +14,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', [DashboardController::class, 'index'])->name('dashboard.home');
-    
     Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/usuarios/cadastrar', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/usuarios', [UserController::class, 'store'])->name('admin.users.store');
+    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
 });
 
 Route::get('/', fn () => redirect()->route('dashboard.home'));

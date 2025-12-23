@@ -40,12 +40,10 @@
         @endif
     </div>
 
-    {{-- 2. ESTRUTURA (Header e Sidebar fixa) --}}
     @include('components.layouts.header')
     @include('components.layouts.sidebar')
 
-    {{-- 3. CONTEÚDO (Com as margens corrigidas) --}}
-    {{-- pl-64 assume que sua sidebar tem 256px de largura. pt-20 assume o tamanho do header --}}
+
     <main class="transition-all duration-300 pt-20 lg:pl-64">
         <div class="p-8">
             <div class="max-w-7xl mx-auto">
@@ -58,7 +56,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
         });
-        // Reinicializa ícones após navegação se usar Livewire/Turbolinks
         document.addEventListener('livewire:navigated', () => { 
             lucide.createIcons(); 
         });
