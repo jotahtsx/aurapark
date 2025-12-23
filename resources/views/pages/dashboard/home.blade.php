@@ -9,7 +9,6 @@
     <p class="text-base-content/70 mt-1">Bem-vindo ao seu ambiente administrativo.</p>
 </div>
 
-{{-- GRID DE MÉTRICAS (TOP) --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
 
     <div class="p-6 bg-base-100 border border-base-300 rounded-2xl shadow-sm hover:shadow-md transition group">
@@ -83,10 +82,10 @@
 
     @php
     $setores = [
-        ['nome' => 'Setor A (Térreo)', 'cor' => 'bg-lime-100 text-lime-800 border-lime-200'],
-        ['nome' => 'Setor B (Subsolo)', 'cor' => 'bg-emerald-100 text-emerald-800 border-emerald-200'],
-        ['nome' => 'Setor C (Superior)', 'cor' => 'bg-green-100 text-green-800 border-green-200'],
-        ['nome' => 'Setor D (Externo)', 'cor' => 'bg-teal-100 text-teal-800 border-teal-200'],
+        ['nome' => 'Veículo Pequeno', 'cor' => 'bg-lime-100 text-lime-800 border-lime-200'],
+        ['nome' => 'Veículo Médio', 'cor' => 'bg-emerald-100 text-emerald-800 border-emerald-200'],
+        ['nome' => 'Veículo Grande', 'cor' => 'bg-green-100 text-green-800 border-green-200'],
+        ['nome' => 'Moto', 'cor' => 'bg-teal-100 text-teal-800 border-teal-200'],
     ];
     @endphp
 
