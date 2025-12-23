@@ -70,7 +70,7 @@
                             <div class="avatar shadow-sm">
                                 <div class="mask mask-squircle w-11 h-11 bg-base-300">
                                     @php
-                                    $avatarUrl = str_starts_with($user->avatar, 'http')
+                                    $avatarUrl = str_starts_with($user->avatar ?? '', 'http')
                                     ? $user->avatar
                                     : ($user->avatar ? asset('storage/' . $user->avatar) : '');
                                     @endphp
@@ -105,22 +105,45 @@
                     </td>
                     <th class="text-right pr-4">
                         <div class="flex justify-end gap-1">
+                            {{-- BOTÃO EDITAR: White no Dark / Azul no Light --}}
                             <a href="javascript:void(0)"
                                 @click="$dispatch('edit-user', { 
-            id: {{ $user->id }}, 
-            name: '{{ $user->name }}', 
-            last_name: '{{ $user->last_name }}', 
-            email: '{{ $user->email }}', 
-            status: '{{ $user->status }}',
-            avatar: '{{ $user->avatar }}'
-       })"
-                                class="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer group"
+                    id: {{ $user->id }}, 
+                    name: '{{ $user->name }}', 
+                    last_name: '{{ $user->last_name }}', 
+                    email: '{{ $user->email }}', 
+                    status: '{{ $user->status }}',
+                    avatar: '{{ $user->avatar }}'
+                })"
+                                class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer group
+                       bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white
+                       dark:bg-white/5 dark:text-white dark:hover:bg-white dark:hover:text-[#070708]"
                                 title="Editar Usuário">
                                 <i data-lucide="edit-3" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
                             </a>
-                            <button class="btn btn-ghost btn-sm btn-square hover:text-error transition-colors" title="Excluir">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
+
+                            {{-- LÓGICA DE DELETAR: Bloqueia se for o próprio usuário --}}
+                            @if($user->id !== auth()->id())
+                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                onsubmit="return confirm('Atenção: Esta ação não pode ser desfeita. Confirmar exclusão?');">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit"
+                                    class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer group border-none outline-none
+                               bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white
+                               dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white"
+                                    title="Excluir Usuário">
+                                    <i data-lucide="trash-2" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                                </button>
+                            </form>
+                            @else
+                            {{-- ÍCONE DE PROTEÇÃO: Aparece no lugar do delete para você mesmo --}}
+                            <div class="w-9 h-9 flex items-center justify-center rounded-xl bg-base-300/50 text-base-content/30 cursor-help"
+                                title="Proteção de conta: Você não pode se excluir.">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            </div>
+                            @endif
                         </div>
                     </th>
                 </tr>

@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/usuarios/cadastrar', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/usuarios', [UserController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/usuarios/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 Route::get('/', fn () => redirect()->route('dashboard.home'));

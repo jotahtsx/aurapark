@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -60,6 +62,14 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        if ($authUser && $authUser->is($user) && $request->status === 'inactive') {
+            return back()->with('error', 'Você não pode desativar o seu próprio usuário.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -88,6 +98,24 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return back()->with('success', 'Usuário ' . $request->name . ' foi atualizado com sucesso.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuário ' . $request->name . ' foi atualizado com sucesso.');
+    }
+
+    public function destroy(User $user)
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        if ($authUser && $authUser->is($user)) {
+            return back()->with('error', 'Você não pode deletar o seu próprio usuário.');
+        }
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->delete();
+
+        return back()->with('success', 'Usuário removido com sucesso.');
     }
 }
