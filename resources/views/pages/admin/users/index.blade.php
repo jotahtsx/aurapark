@@ -198,7 +198,7 @@
     <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-base-content/5">
 
         <div class="px-8 py-6 border-b border-base-200 bg-base-100 shrink-0">
-            <h3 class="text-xl font-black tracking-tighter text-base-content">Cadastrar Usuário</h3>
+            <h3 class="text-xl font-bold tracking-tighter text-base-content">Cadastrar Usuário</h3>
             <p class="text-[10px] text-base-content/40 font-bold uppercase tracking-widest mt-1">Habilite um novo acesso ao sistema</p>
         </div>
 
@@ -301,24 +301,32 @@
     userStatus: 'active',
     userId: null
 }"
-    {{-- Evento para preencher o modal via JS --}}
     @edit-user.window="
     userId = $event.detail.id;
     userName = $event.detail.name;
     userLastName = $event.detail.last_name;
     userEmail = $event.detail.email;
     userStatus = $event.detail.status;
-    editPhotoPreview = $event.detail.avatar ? '/storage/' + $event.detail.avatar : null;
+    
+    /* Lógica Inteligente para Foto: Aceita URL completa (Dummy) ou caminho local */
+    let avatar = $event.detail.avatar;
+    if (avatar) {
+        editPhotoPreview = (avatar.startsWith('http')) 
+            ? avatar 
+            : '/storage/' + avatar;
+    } else {
+        editPhotoPreview = null;
+    }
+    
     $el.showModal();
 ">
-    <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-base-content/5">
-
+    <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-base-content/5 z-10">
         <div class="px-8 py-6 border-b border-base-200 bg-base-100 shrink-0 flex justify-between items-center">
             <div>
-                <h3 class="text-xl font-black uppercase tracking-tighter text-base-content">Editar Perfil</h3>
-                <p class="text-[10px] text-base-content/40 font-bold uppercase tracking-widest mt-1">Atualize as credenciais do operador</p>
+                <h3 class="text-xl font-bold tracking-tighter text-base-content">Editar Perfil</h3>
+                <p class="text-[10px] text-base-content/40 font-bold tracking-widest mt-1">Atualize as credenciais do operador</p>
             </div>
-            <button @click="edit_user_modal.close()" class="btn btn-sm btn-circle btn-ghost opacity-30">✕</button>
+            <button @click="edit_user_modal.close()" class="btn btn-sm btn-circle btn-ghost opacity-30 border-none outline-none">✕</button>
         </div>
 
         <form :action="'/admin/users/' + userId" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
@@ -326,7 +334,6 @@
             @method('PUT')
 
             <div class="flex-1 overflow-y-auto p-8 pt-6 space-y-8 custom-scrollbar scroll-smooth">
-
                 <div class="flex flex-col items-center group">
                     <label class="relative cursor-pointer hover:scale-105 transition-all">
                         <div class="w-24 h-24 rounded-[32px] bg-base-200 flex items-center justify-center border-2 border-dashed border-base-content/10 overflow-hidden shadow-inner">
@@ -344,48 +351,53 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     <div class="form-control group">
-                        <label class="label"><span class="label-text font-bold text-[10px] uppercase opacity-40">Nome</span></label>
-                        <input type="text" name="name" x-model="userName" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all" />
+                        <label class="label py-1 ml-1"><span class="label-text font-bold text-[10px] uppercase opacity-40 tracking-widest">Nome</span></label>
+                        <input type="text" name="name" x-model="userName" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all text-sm" />
+                    </div>
+                    <div class="form-control group">
+                        <label class="label py-1 ml-1"><span class="label-text font-bold text-[10px] uppercase opacity-40 tracking-widest">Sobrenome</span></label>
+                        <input type="text" name="last_name" x-model="userLastName" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all text-sm" />
+                    </div>
+                    <div class="form-control md:col-span-2 group">
+                        <label class="label py-1 ml-1">
+                            <span class="label-text font-bold text-[10px] uppercase opacity-40 group-focus-within:text-primary transition-all tracking-widest">E-mail de Acesso</span>
+                        </label>
+                        <input type="email" name="email" x-model="userEmail" required
+                            placeholder="exemplo@email.com"
+                            class="input w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 focus:bg-base-100 transition-all text-sm placeholder:text-base-content/20" />
+                    </div>
+                    <div class="form-control group">
+                        <label class="label py-1 ml-1">
+                            <span class="label-text font-bold text-[10px] uppercase text-primary tracking-widest">Alterar Senha</span>
+                        </label>
+                        <input type="password" name="password" placeholder="Em branco para manter"
+                            class="input w-full bg-primary/5 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 focus:bg-base-100 transition-all text-sm placeholder:text-primary/30" />
                     </div>
 
                     <div class="form-control group">
-                        <label class="label"><span class="label-text font-bold text-[10px] uppercase opacity-40">Sobrenome</span></label>
-                        <input type="text" name="last_name" x-model="userLastName" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all" />
-                    </div>
-
-                    <div class="form-control md:col-span-2 group">
-                        <label class="label"><span class="label-text font-bold text-[10px] uppercase opacity-40">E-mail</span></label>
-                        <input type="email" name="email" x-model="userEmail" class="input bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/5 transition-all" />
-                    </div>
-
-                    <div class="form-control md:col-span-2 group p-4 bg-primary/5 rounded-2xl border border-primary/10 mt-2">
-                        <label class="label py-0"><span class="label-text font-bold text-[10px] uppercase text-primary">Alterar Senha (Opcional)</span></label>
-                        <input type="password" name="password" placeholder="Deixe em branco para manter a atual"
-                            class="input bg-transparent border-none px-0 focus:outline-none text-sm placeholder:text-primary/30" />
-                    </div>
-                    <div class="form-control md:col-span-2">
-                        <label class="label">
-                            <span class="label-text font-bold text-[10px] uppercase opacity-40">Status do Operador</span>
+                        <label class="label py-1 ml-1">
+                            <span class="label-text font-bold text-[10px] uppercase opacity-40 tracking-widest">Status do Operador</span>
                         </label>
-
-                        <select name="status"
-                            x-model="userStatus"
+                        <select name="status" x-model="userStatus"
                             class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:bg-base-100 transition-all text-xs font-bold uppercase px-5 cursor-pointer">
-
                             <option value="active">🟢 Ativo</option>
                             <option value="inactive">🔴 Inativo</option>
-
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="p-6 bg-base-100 border-t border-base-200 flex items-center justify-end gap-3 shrink-0">
-                <button type="button" @click="edit_user_modal.close()" class="btn btn-ghost font-bold text-[10px] uppercase tracking-widest">Cancelar</button>
-                <button type="submit" class="px-10 py-4 rounded-2xl font-black bg-primary text-primary-content shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all uppercase text-[10px] tracking-widest">
+                <button type="button" @click="edit_user_modal.close()" class="btn btn-ghost font-bold text-[10px] uppercase tracking-widest border-none">Cancelar</button>
+                <button type="submit" class="px-10 py-4 rounded-2xl font-black bg-primary text-primary-content shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all uppercase text-[10px] tracking-widest border-none">
                     Atualizar Dados
                 </button>
             </div>
         </form>
     </div>
+
+    {{-- Backdrop (Clique fora para fechar + Blur) --}}
+    <form method="dialog" class="modal-backdrop backdrop-blur-md bg-base-content/10">
+        <button class="cursor-default outline-none">close</button>
+    </form>
 </dialog>
