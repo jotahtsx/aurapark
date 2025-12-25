@@ -41,6 +41,19 @@
 
                 <span class="font-semibold">Usuários</span>
             </a>
+
+            <a href="{{ route('admin.pricings.index') }}"
+                class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+    {{ request()->routeIs('admin.pricings.*') 
+        ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' 
+        : 'text-base-content/70 hover:bg-base-200 hover:text-base-content' }}">
+
+                <i data-lucide="banknote"
+                    class="w-5 h-5 {{ request()->routeIs('admin.pricings.*') ? 'text-primary-content' : 'group-hover:text-primary' }}">
+                </i>
+
+                <span class="font-semibold">Precificações</span>
+            </a>
         </nav>
     </aside>
 </div>
