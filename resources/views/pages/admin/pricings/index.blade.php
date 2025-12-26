@@ -16,7 +16,7 @@
     </a>
 </div>
 
-{{-- Filtros e Busca --}}
+
 <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
     <form action="{{ route('admin.pricings.index') }}" method="GET" class="w-full max-w-md group">
         <div class="relative">
@@ -40,7 +40,6 @@
     </div>
 </div>
 
-{{-- Tabela --}}
 <div class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
         <table class="table table-zebra w-full">

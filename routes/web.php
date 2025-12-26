@@ -3,7 +3,8 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PricingController;
-use App\Http\Controllers\Admin\DashboardController; // Adicione esta linha
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -30,6 +31,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/precificacoes/{pricing}/editar', [PricingController::class, 'edit'])->name('admin.pricings.edit');
     Route::put('/admin/precificacoes/{pricing}', [PricingController::class, 'update'])->name('admin.pricings.update');
     Route::delete('/admin/precificacoes/{pricing}', [PricingController::class, 'destroy'])->name('admin.pricings.destroy');
+
+    // Rotas para pagamento
+    Route::get('/admin/pagamentos', [PaymentController::class, 'index'])->name('admin.payments.index');
+    Route::post('/admin/pagamentos', [PaymentController::class, 'store'])->name('admin.payments.store');
+    Route::put('/admin/pagamentos/{payment}', [PaymentController::class, 'update'])->name('admin.payments.update');
+    Route::delete('/admin/pagamentos/{payment}', [PaymentController::class, 'destroy'])->name('admin.payments.destroy');
 });
 
 Route::get('/', fn () => redirect()->route('dashboard.home'));
