@@ -10,24 +10,30 @@ class MonthlyCustomer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'birth_date',
+        'name',
         'email',
-        'document_number',
-        'id_card',
-        'id_card_issuer',
-        'id_card_state',
         'phone',
+        'cpf',
         'zip_code',
         'address',
-        'address_number',
+        'number',
+        'complement',
         'neighborhood',
         'city',
         'state',
-        'complement',
-        'is_active',
+        'vehicle_model',
+        'vehicle_plate',
+        'vehicle_color',
+        'monthly_fee',
         'due_day',
-        'notes',
+        'status',
+    ];
+
+    /**
+     * Casting de tipos (opcional, mas ajuda na precisão do valor mensal)
+     */
+    protected $casts = [
+        'monthly_fee' => 'decimal:2',
+        'due_day' => 'integer',
     ];
 }
