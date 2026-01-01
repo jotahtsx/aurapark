@@ -14,6 +14,9 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body x-data="{ 
@@ -28,15 +31,15 @@
     class="antialiased bg-base-200/50 min-h-screen">
     <div class="fixed top-6 right-6 w-full max-w-[350px] z-[9999] flex flex-col gap-3 pointer-events-none">
         @foreach ($errors->all() as $error)
-            <x-layouts.flash type="error" :message="$error" />
+        <x-layouts.flash type="error" :message="$error" />
         @endforeach
 
         @if (session('success'))
-            <x-layouts.flash type="success" :message="session('success')" />
+        <x-layouts.flash type="success" :message="session('success')" />
         @endif
 
         @if (session('error'))
-            <x-layouts.flash type="error" :message="session('error')" />
+        <x-layouts.flash type="error" :message="session('error')" />
         @endif
     </div>
 
@@ -56,8 +59,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
         });
-        document.addEventListener('livewire:navigated', () => { 
-            lucide.createIcons(); 
+        document.addEventListener('livewire:navigated', () => {
+            lucide.createIcons();
         });
     </script>
 </body>

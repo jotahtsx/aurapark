@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MonthlyCustomer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MonthlyCustomerController extends Controller
 {
@@ -15,63 +15,112 @@ class MonthlyCustomerController extends Controller
 
         $customers = MonthlyCustomer::query()
             ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('cpf', 'like', "%{$search}%")
-                    ->orWhere('vehicle_plate', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    // Busca correta nas colunas existentes no banco
+                    $q->where('first_name', 'ilike', "%{$search}%")
+                        ->orWhere('last_name', 'ilike', "%{$search}%")
+                        ->orWhere('document_number', 'like', "%{$search}%");
+                });
             })
-            ->orderBy('name')
+            ->orderBy('first_name')
             ->paginate(10);
 
         return view('pages.admin.monthly-customers.index', compact('customers'));
     }
 
+    private function sanitizeRequest(Request $request)
+    {
+        $request->merge([
+            // Limpa máscaras e garante formatos numéricos
+            'cpf'      => preg_replace('/\D/', '', $request->cpf),
+            'phone'    => preg_replace('/\D/', '', $request->phone),
+            'zip_code' => preg_replace('/\D/', '', $request->zip_code),
+        ]);
+    }
+
     public function store(Request $request)
     {
-        // 1. Validação pesada dos 17 campos
-        $validated = $request->validate([
-            'name'           => 'required|string|max:255',
-            'email'          => 'nullable|email|unique:monthly_customers,email',
-            'phone'          => 'nullable|string|max:20',
-            'cpf'            => 'required|string|unique:monthly_customers,cpf',
-            'zip_code'       => 'nullable|string|max:10',
-            'address'        => 'nullable|string|max:255',
-            'number'         => 'nullable|string|max:20',
-            'neighborhood'   => 'nullable|string|max:100',
-            'city'           => 'nullable|string|max:100',
-            'state'          => 'nullable|string|max:2',
-            'vehicle_model'  => 'required|string|max:100',
-            'vehicle_plate'  => 'required|string|unique:monthly_customers,vehicle_plate',
-            'vehicle_color'  => 'nullable|string|max:50',
-            'monthly_fee'    => 'required|numeric|min:0',
-            'due_day'        => 'required|integer|between:1,31',
-            'status'         => 'required|in:active,inactive',
+        $this->sanitizeRequest($request);
+
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'cpf'       => 'required|string|unique:monthly_customers,document_number',
+            'due_day'   => 'required|integer|between:1,31',
+            'is_active' => 'required|in:active,inactive',
         ]);
 
         try {
-            // 2. Criação no Banco
-            MonthlyCustomer::create($validated);
+            $nameParts = explode(' ', $request->name, 2);
+            $firstName = $nameParts[0];
+            $lastName  = $nameParts[1] ?? ''; // Vazio em vez de "Não informado"
 
-            return redirect()
-                ->route('admin.monthly-customers.index')
-                ->with('success', 'Mensalista ' . $request->name . ' cadastrado com sucesso!');
-                
+            $data = [
+                'first_name'      => $firstName,
+                'last_name'       => $lastName,
+                'document_number' => $request->cpf,
+                'id_card'         => $request->id_card,
+                'phone'           => $request->phone ?? '',
+                'zip_code'        => $request->zip_code ?? '',
+                'address'         => $request->address ?? '',
+                'address_number'  => 'S/N',
+                'neighborhood'    => '',
+                'city'            => '',
+                'state'           => 'PI',
+                'due_day'         => $request->due_day,
+                'is_active'       => $request->is_active === 'active',
+                'birth_date'      => now()->format('Y-m-d'), // Obrigatório na sua migration
+                'email'           => $request->email ?? 'cliente_' . uniqid() . '@sistema.com',
+            ];
+
+            MonthlyCustomer::create($data);
+
+            return redirect()->route('admin.monthly_customers.index')
+                ->with('success', "Mensalista {$firstName} cadastrado!");
         } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Erro ao salvar: ' . $e->getMessage());
+            logger()->error("Erro ao salvar: " . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Falha no banco de dados.');
         }
     }
 
-    public function destroy(MonthlyCustomer $monthlyCustomer)
+    public function update(Request $request, $id)
     {
+        $this->sanitizeRequest($request);
+        $customer = MonthlyCustomer::findOrFail($id);
+
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|email|unique:monthly_customers,email,' . $id, // Validação do e-mail adicionada
+            'cpf'       => 'required|string|unique:monthly_customers,document_number,' . $id,
+            'due_day'   => 'required|integer|between:1,31',
+            'is_active' => 'required|in:active,inactive',
+        ]);
+
         try {
-            $monthlyCustomer->delete();
-            return redirect()->back()->with('success', 'Mensalista removido com sucesso!');
+            $nameParts = explode(' ', $request->name, 2);
+
+            $data = [
+                'first_name'      => $nameParts[0],
+                'last_name'       => $nameParts[1] ?? '',
+                'email'           => $request->email,
+                'document_number' => $request->cpf,
+                'id_card'         => $request->id_card,
+                'phone'           => $request->phone,
+                'zip_code'        => $request->zip_code,
+                'address'         => $request->address,
+                'due_day'         => $request->due_day,
+                'is_active'       => $request->is_active === 'active',
+            ];
+
+            $customer->update($data);
+            return redirect()->route('admin.monthly_customers.index')->with('success', 'Usuário atualizado com sucesso!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Não foi possível excluir o registro.');
+            return redirect()->back()->withInput()->with('error', 'Falha ao atualizar.');
         }
     }
 
-    // Os métodos show, edit e update faremos conforme a necessidade da interface!
+    public function destroy($id)
+    {
+        \App\Models\MonthlyCustomer::destroy($id);
+        return back()->with('success', 'Deletado com sucesso!');
+    }
 }
