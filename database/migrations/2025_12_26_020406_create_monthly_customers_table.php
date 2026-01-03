@@ -13,35 +13,61 @@ return new class extends Migration
     {
         Schema::create('monthly_customers', function (Blueprint $table) {
             $table->id();
-            
-            // Personal Information
+
+            /*
+            |--------------------------------------------------------------------------
+            | Personal Information
+            |--------------------------------------------------------------------------
+            */
             $table->string('first_name');
             $table->string('last_name');
             $table->date('birth_date');
             $table->string('email')->unique();
-            
-            // Document Number (CPF)
-            $table->string('document_number', 11)->unique();
-            
-            // ID Card (RG)
-            $table->string('id_card', 20)->nullable();
-            $table->string('id_card_issuer', 10)->nullable(); // Órgão Emissor
-            $table->char('id_card_state', 2)->nullable();     // UF do RG
-            
-            $table->string('phone');
 
-            // Address
-            $table->string('zip_code', 8);
+            /*
+            |--------------------------------------------------------------------------
+            | Documents
+            |--------------------------------------------------------------------------
+            */
+
+            // CPF (11 digits, numbers only)
+            $table->char('document_number', 11)->unique();
+
+            // RG
+            $table->string('id_card', 20)->nullable();
+            $table->string('id_card_issuer', 10)->nullable(); // Órgão emissor
+            $table->char('id_card_state', 2)->nullable();     // UF
+
+            /*
+            |--------------------------------------------------------------------------
+            | Contact
+            |--------------------------------------------------------------------------
+            */
+            $table->string('phone', 20);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Address
+            |--------------------------------------------------------------------------
+            */
+            $table->char('zip_code', 8);
             $table->string('address');
-            $table->string('address_number'); // Alterado para evitar conflito com palavra reservada
+            $table->string('address_number');
             $table->string('neighborhood');
             $table->string('city');
             $table->char('state', 2);
             $table->string('complement')->nullable();
 
-            // System / Financial
+            /*
+            |--------------------------------------------------------------------------
+            | System / Financial
+            |--------------------------------------------------------------------------
+            */
             $table->boolean('is_active')->default(true);
-            $table->integer('due_day')->default(5);
+
+            // Day of month for billing (1–31)
+            $table->unsignedTinyInteger('due_day')->default(5);
+
             $table->text('notes')->nullable();
 
             $table->timestamps();

@@ -5,19 +5,29 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>@yield('title', 'Painel') — AuraPark</title>
+
     <script>
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (
+            localStorage.getItem('theme') === 'dark' ||
+            (!('theme' in localStorage) &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
             document.documentElement.setAttribute('data-theme', 'dark');
         } else {
             document.documentElement.setAttribute('data-theme', 'light');
         }
     </script>
+
+    {{-- Assets --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Icons --}}
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    {{-- Alpine Mask --}}
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 
 <body x-data="{ 
         theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),

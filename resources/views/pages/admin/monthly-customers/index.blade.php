@@ -33,9 +33,9 @@
 {{-- Tabela --}}
 <div class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="table w-full border-separate border-spacing-0">
+        <table class="table w-full border-none">
             <thead>
-                <tr class="bg-base-200/50">
+                <tr class="bg-base-200/50 border-b border-base-300">
                     <th class="text-xs uppercase tracking-wider font-semibold pl-6 h-12 text-base-content/60">Nome</th>
                     <th class="text-xs uppercase tracking-wider font-semibold text-center h-12 text-base-content/60">CPF</th>
                     <th class="text-xs uppercase tracking-wider font-semibold text-center h-12 text-base-content/60">Contato</th>
@@ -46,7 +46,6 @@
             <tbody class="divide-y divide-base-300">
                 @forelse($customers as $customer)
                 <tr class="hover:bg-base-200/40 transition-colors text-base-content">
-                    {{-- Nome --}}
                     <td class="pl-6 py-4">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shadow-sm">
@@ -59,7 +58,6 @@
                         </div>
                     </td>
 
-                    {{-- CPF (Coluna real: document_number) --}}
                     <td class="text-center font-medium text-xs opacity-70">
                         {{ preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $customer->document_number) }}
                     </td>
@@ -77,7 +75,6 @@
                         </div>
                     </td>
 
-                    {{-- Status --}}
                     <td class="text-center">
                         @if($customer->is_active)
                         <div class="badge badge-success badge-sm gap-1 py-3 px-3 border-none font-bold uppercase text-[9px] bg-green-500/10 text-green-600">
@@ -90,10 +87,8 @@
                         @endif
                     </td>
 
-                    {{-- Ações Sempre Visíveis --}}
                     <td class="text-right pr-6">
                         <div class="flex justify-end gap-2">
-                            {{-- Botão Editar --}}
                             <button
                                 type="button"
                                 onclick="openEditModal(this)"
@@ -103,6 +98,7 @@
                                 data-phone="{{ $customer->phone }}"
                                 data-email="{{ $customer->email }}"
                                 data-zip="{{ $customer->zip_code }}"
+                                data-idcard="{{ $customer->id_card }}"
                                 data-address="{{ $customer->address }}"
                                 data-due="{{ $customer->due_day }}"
                                 data-active="{{ $customer->is_active ? 'active' : 'inactive' }}"
@@ -111,7 +107,6 @@
                                 <i data-lucide="edit-3" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
                             </button>
 
-                            {{-- Botão Excluir --}}
                             <form action="{{ route('admin.monthly_customers.destroy', $customer->id) }}" method="POST"
                                 onsubmit="return confirm('Atenção: Esta ação não pode ser desfeita. Confirmar exclusão?');">
                                 @csrf
@@ -127,10 +122,18 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="py-24 text-center">
-                        <div class="flex flex-col items-center justify-center opacity-20">
-                            <i data-lucide="users" class="w-16 h-16 mb-4"></i>
-                            <p class="font-black uppercase tracking-widest text-xs">Nenhum mensalista cadastrado</p>
+                    <td colspan="5" class="py-28">
+                        <div class="flex flex-col items-center justify-center text-center">
+                            <div class="w-20 h-20 bg-base-200/50 rounded-3xl flex items-center justify-center mb-6">
+                                <i data-lucide="search-x" class="w-10 h-10 opacity-20 text-base-content"></i>
+                            </div>
+                            <div class="max-w-xs">
+                                <h3 class="font-black text-lg text-base-content/50 tracking-tight">Nenhum mensalista encontrado</h3>
+                                <p class="text-[12px] text-base-content/30 italic mt-2 leading-relaxed">
+                                    Sua busca não retornou resultados. <br>
+                                    Tente outros termos ou cadastre um novo mensalista.
+                                </p>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -143,27 +146,25 @@
 {{-- MODAL NOVO MENSALISTA --}}
 <dialog id="new_customer_modal" class="modal modal-bottom sm:modal-middle transition-all duration-500"
     x-data="{ 
-        cpf: '', 
-        zip: '',
-        address: '',
-        loading: false,
-
+        cpf: '', zip: '', tel: '', address: '', loading: false,
         maskCPF(v) {
             v = v.replace(/\D/g, '');
             if (v.length <= 11) {
-                v = v.replace(/(\d{3})(\d)/, '$1.$2');
-                v = v.replace(/(\d{3})(\d)/, '$1.$2');
-                v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
             }
             return v;
         },
-
+        maskPhone(v) {
+            if(!v) return '';
+            v = v.replace(/\D/g, '');
+            v = v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
+            return v.substring(0, 15);
+        },
         maskCEP(v) {
             v = v.replace(/\D/g, '');
             v = v.replace(/^(\d{5})(\d)/, '$1-$2');
             return v.substring(0, 9);
         },
-
         async checkCEP() {
             if (this.zip.length === 9) {
                 this.loading = true;
@@ -181,7 +182,6 @@
     }">
 
     <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-base-content/5">
-        {{-- Header --}}
         <div class="px-8 py-6 border-b border-base-200 bg-base-100 flex justify-between items-center shrink-0">
             <div>
                 <h3 class="text-xl font-bold tracking-tighter text-base-content">Novo Mensalista</h3>
@@ -192,73 +192,58 @@
 
         <form action="{{ route('admin.monthly_customers.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
             @csrf
-
-            {{-- Body com Scroll interno --}}
             <div class="flex-1 overflow-y-auto p-8 space-y-6">
-
-                {{-- Nome --}}
                 <div class="form-control group">
-                    <label class="label py-1 ml-1">
-                        <span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Nome Completo</span>
-                    </label>
-                    <input type="text" name="name" required
-                        class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Nome Completo</span></label>
+                    <input type="text" name="name" required class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
                 </div>
 
-                {{-- CPF e RG --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="form-control">
-                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40">CPF</span></label>
-                        <input type="text" name="cpf" x-model="cpf" @input="cpf = maskCPF($event.target.value)" maxlength="14" placeholder="000.000.000-00" required
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all text-sm shadow-sm" />
-                    </div>
-                    <div class="form-control">
-                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40">RG (Opcional)</span></label>
-                        <input type="text" name="id_card"
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all text-sm shadow-sm" />
-                    </div>
-                </div>
-
-                {{-- CEP e Endereço --}}
-                <div class="grid grid-cols-12 gap-4">
-                    <div class="form-control col-span-12 sm:col-span-4 relative">
-                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40">CEP</span></label>
-                        <input type="text" name="zip_code" x-model="zip" @input="zip = maskCEP($event.target.value); checkCEP()" maxlength="9" placeholder="00000-000"
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all text-sm shadow-sm" />
-                        <div x-show="loading" class="absolute right-4 bottom-3">
-                            <span class="loading loading-spinner loading-xs text-primary opacity-50"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-control col-span-12 sm:col-span-8">
-                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40">Endereço Completo</span></label>
-                        <input type="text" name="address" x-model="address" placeholder="Rua, Número, Bairro"
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all text-sm shadow-sm" />
-                    </div>
-                </div>
-
-                {{-- FINANCEIRO E STATUS --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {{-- DIA DE VENCIMENTO --}}
                     <div class="form-control group">
-                        <label class="label py-1 ml-1">
-                            <span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40">Dia de Vencimento</span>
-                        </label>
-                        <select name="due_day" required
-                            class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-xs font-bold px-5">
-                            <option value="">Selecione o dia</option>
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">E-mail</span></label>
+                        <input type="email" name="email" required class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    </div>
+                    <div class="form-control group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Telefone</span></label>
+                        <input type="text" name="phone" x-model="tel" @input="tel = maskPhone($event.target.value)" placeholder="(00) 00000-0000" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="form-control group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">CPF</span></label>
+                        <input type="text" name="cpf" x-model="cpf" @input="cpf = maskCPF($event.target.value)" maxlength="14" placeholder="000.000.000-00" required class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    </div>
+                    <div class="form-control group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">RG (Opcional)</span></label>
+                        <input type="text" name="id_card" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-4">
+                    <div class="form-control col-span-12 sm:col-span-4 relative group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">CEP</span></label>
+                        <input type="text" name="zip_code" x-model="zip" @input="zip = maskCEP($event.target.value); checkCEP()" maxlength="9" placeholder="00000-000" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                        <div x-show="loading" class="absolute right-4 bottom-3"><span class="loading loading-spinner loading-xs text-primary opacity-50"></span></div>
+                    </div>
+                    <div class="form-control col-span-12 sm:col-span-8 group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Endereço Completo</span></label>
+                        <input type="text" name="address" x-model="address" placeholder="Rua, Número, Bairro" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="form-control group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Dia de Vencimento</span></label>
+                        <select name="due_day" required class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 transition-all text-xs font-bold px-5">
                             @for ($i = 1; $i <= 28; $i++)
                                 <option value="{{ $i }}">Dia {{ sprintf('%02d', $i) }}</option>
-                                @endfor
+                            @endfor
                         </select>
                     </div>
-
                     <div class="form-control group">
-                        <label class="label py-1 ml-1">
-                            <span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40">Status do Cadastro</span>
-                        </label>
-                        <select name="is_active"
-                            class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-[10px] font-bold uppercase px-5">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Status</span></label>
+                        <select name="is_active" class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 transition-all text-[10px] font-bold uppercase px-5">
                             <option value="active" selected>🟢 Ativo</option>
                             <option value="inactive">🔴 Inativo</option>
                         </select>
@@ -266,12 +251,9 @@
                 </div>
             </div>
 
-            {{-- Footer --}}
             <div class="p-6 bg-base-100 border-t border-base-200/60 flex items-center justify-end gap-3 shrink-0">
                 <button type="button" onclick="new_customer_modal.close()" class="btn btn-ghost font-bold text-[10px] uppercase tracking-widest opacity-30 hover:opacity-100 transition-all">Cancelar</button>
-                <button type="submit" class="btn btn-primary px-10 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">
-                    Salvar Mensalista
-                </button>
+                <button type="submit" class="btn btn-primary px-10 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Salvar Mensalista</button>
             </div>
         </form>
     </div>
@@ -281,27 +263,44 @@
 {{-- MODAL EDITAR MENSALISTA --}}
 <dialog id="edit_customer_modal" class="modal modal-bottom sm:modal-middle transition-all duration-500"
     x-data="{ 
+        zip: '', address: '', loading: false,
         maskCPF(v) {
             if(!v) return '';
             v = v.replace(/\D/g, '');
             if (v.length <= 11) {
-                v = v.replace(/(\d{3})(\d)/, '$1.$2');
-                v = v.replace(/(\d{3})(\d)/, '$1.$2');
-                v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
             }
             return v;
         },
         maskPhone(v) {
             if(!v) return '';
             v = v.replace(/\D/g, '');
-            v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-            v = v.replace(/(\d)(\d{4})$/, '$1-$2');
+            v = v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
             return v.substring(0, 15);
+        },
+        maskCEP(v) {
+            if(!v) return '';
+            v = v.replace(/\D/g, '');
+            v = v.replace(/^(\d{5})(\d)/, '$1-$2');
+            return v.substring(0, 9);
+        },
+        async checkCEP() {
+            if (this.zip.length === 9) {
+                this.loading = true;
+                const cleanZip = this.zip.replace(/\D/g, '');
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cleanZip}/json/`);
+                    const data = await response.json();
+                    if (!data.erro) {
+                        this.address = `${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`;
+                    }
+                } catch (error) { console.error('Erro ViaCEP'); }
+                finally { this.loading = false; }
+            }
         }
     }">
 
     <div class="modal-box p-0 max-w-2xl bg-base-100 rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-base-content/5">
-        {{-- Header --}}
         <div class="px-8 py-6 border-b border-base-200 bg-base-100 flex justify-between items-center shrink-0">
             <div>
                 <h3 class="text-xl font-bold tracking-tighter text-base-content">Editar Mensalista</h3>
@@ -313,61 +312,58 @@
         <form id="edit_customer_form" method="POST" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             @method('PUT')
-
             <div class="flex-1 overflow-y-auto p-8 space-y-6">
-                {{-- Nome --}}
                 <div class="form-control group">
                     <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Nome Completo</span></label>
-                    <input type="text" name="name" id="edit_name" required
-                        class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    <input type="text" name="name" id="edit_name" required class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
                 </div>
 
-                {{-- Email e Telefone --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="form-control group">
                         <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">E-mail</span></label>
-                        <input type="email" name="email" id="edit_email" required
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                        <input type="email" name="email" id="edit_email" required class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
                     </div>
                     <div class="form-control group">
                         <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Telefone</span></label>
-                        <input type="text" name="phone" id="edit_phone"
-                            @input="$el.value = maskPhone($el.value)"
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                        <input type="text" name="phone" id="edit_phone" @input="$el.value = maskPhone($el.value)" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
                     </div>
                 </div>
 
-                {{-- CPF e Endereço --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="form-control group">
                         <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">CPF</span></label>
-                        <input type="text" name="cpf" id="edit_cpf"
-                            @input="$el.value = maskCPF($el.value)"
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                        <input type="text" name="cpf" id="edit_cpf" @input="$el.value = maskCPF($el.value)" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
                     </div>
                     <div class="form-control group">
-                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Endereço</span></label>
-                        <input type="text" name="address" id="edit_address"
-                            class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">RG</span></label>
+                        <input type="text" name="id_card" id="edit_id_card" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
                     </div>
                 </div>
 
-                {{-- Financeiro e Status --}}
+                <div class="grid grid-cols-12 gap-4">
+                    <div class="form-control col-span-12 sm:col-span-4 relative group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">CEP</span></label>
+                        <input type="text" name="zip_code" id="edit_zip" x-model="zip" @input="zip = maskCEP($event.target.value); checkCEP()" maxlength="9" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                        <div x-show="loading" class="absolute right-4 bottom-3"><span class="loading loading-spinner loading-xs text-primary opacity-50"></span></div>
+                    </div>
+                    <div class="form-control col-span-12 sm:col-span-8 group">
+                        <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Endereço Completo</span></label>
+                        <input type="text" name="address" id="edit_address" x-model="address" class="w-full px-5 h-12 bg-base-200/50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-sm shadow-sm" />
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="form-control group">
                         <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Dia de Vencimento</span></label>
-                        <select name="due_day" id="edit_due_day" required
-                            class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-xs font-bold px-5">
+                        <select name="due_day" id="edit_due_day" required class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 transition-all text-xs font-bold px-5">
                             @for ($i = 1; $i <= 28; $i++)
                                 <option value="{{ $i }}">Dia {{ sprintf('%02d', $i) }}</option>
-                                @endfor
+                            @endfor
                         </select>
                     </div>
-
                     <div class="form-control group">
                         <label class="label py-1 ml-1"><span class="label-text font-black text-[9px] uppercase tracking-widest opacity-40 group-focus-within:text-primary transition-all">Status</span></label>
-                        <select name="is_active" id="edit_is_active"
-                            class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 focus:outline-none transition-all text-[10px] font-bold uppercase px-5">
+                        <select name="is_active" id="edit_is_active" class="select w-full bg-base-200/50 border-none rounded-2xl h-12 focus:ring-4 focus:ring-primary/10 focus:bg-base-100 transition-all text-[10px] font-bold uppercase px-5">
                             <option value="active">🟢 Ativo</option>
                             <option value="inactive">🔴 Inativo</option>
                         </select>
@@ -375,41 +371,49 @@
                 </div>
             </div>
 
-            {{-- Footer --}}
             <div class="p-6 bg-base-100 border-t border-base-200/60 flex items-center justify-end gap-3 shrink-0">
                 <button type="button" onclick="edit_customer_modal.close()" class="btn btn-ghost font-bold text-[10px] uppercase tracking-widest opacity-30 hover:opacity-100 transition-all">Cancelar</button>
-                <button type="submit" class="btn btn-primary px-10 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">
-                    Atualizar Dados
-                </button>
+                <button type="submit" class="btn btn-primary px-10 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Atualizar Dados</button>
             </div>
         </form>
     </div>
     <form method="dialog" class="modal-backdrop backdrop-blur-md bg-base-content/10"><button>close</button></form>
 </dialog>
+
 @endsection
 
 <script>
     function openEditModal(button) {
         const id = button.dataset.id;
+        const modal = document.getElementById('edit_customer_modal');
         const form = document.getElementById('edit_customer_form');
-
+        
+        // Define a rota de update
         form.action = `/admin/mensalistas/${id}`;
 
+        // Atualiza campos HTML normais
         document.getElementById('edit_name').value = button.dataset.name;
         document.getElementById('edit_email').value = button.dataset.email;
-        document.getElementById('edit_address').value = button.dataset.address;
         document.getElementById('edit_due_day').value = button.dataset.due;
         document.getElementById('edit_is_active').value = button.dataset.active;
+        document.getElementById('edit_id_card').value = button.dataset.idcard || '';
 
+        // ATUALIZAÇÃO ALPINO: Sincroniza com as variáveis do x-data do Modal
+        const alpineData = Alpine.$data(modal);
+        alpineData.zip = button.dataset.zip || '';
+        alpineData.address = button.dataset.address || '';
+
+        // Máscaras manuais
         const cpfInput = document.getElementById('edit_cpf');
         const phoneInput = document.getElementById('edit_phone');
 
         cpfInput.value = button.dataset.cpf;
         phoneInput.value = button.dataset.phone;
 
+        // Dispara o evento de input para formatar as máscaras visualmente
         cpfInput.dispatchEvent(new Event('input'));
         phoneInput.dispatchEvent(new Event('input'));
 
-        document.getElementById('edit_customer_modal').showModal();
+        modal.showModal();
     }
 </script>
