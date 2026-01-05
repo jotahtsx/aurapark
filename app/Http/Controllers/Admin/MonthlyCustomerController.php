@@ -18,7 +18,7 @@ class MonthlyCustomerController extends Controller
                 $query->where(function ($q) use ($search) {
                     // Removendo caracteres especiais da busca caso o usuário digite CPF com ponto/traço
                     $cleanSearch = preg_replace('/\D/', '', $search);
-                    
+
                     $q->where('first_name', 'ilike', "%{$search}%")
                         ->orWhere('last_name', 'ilike', "%{$search}%")
                         ->orWhere('document_number', 'like', "%{$cleanSearch}%");
@@ -72,7 +72,7 @@ class MonthlyCustomerController extends Controller
                 'state'           => 'PI',
                 'due_day'         => $request->due_day,
                 'is_active'       => $request->is_active === 'active',
-                'birth_date'      => now()->format('Y-m-d'), 
+                'birth_date'      => now()->format('Y-m-d'),
                 'email'           => $request->email,
             ];
 
@@ -95,31 +95,27 @@ class MonthlyCustomerController extends Controller
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:monthly_customers,email,' . $id,
             'cpf'       => 'required|string|size:11|unique:monthly_customers,document_number,' . $id,
-            'due_day'   => 'required|integer|between:1,31',
+            'due_day'   => 'required|integer|between:1,28',
             'is_active' => 'required|in:active,inactive',
         ]);
 
         try {
             $nameParts = explode(' ', $request->name, 2);
 
-            $data = [
+            $customer->update([
                 'first_name'      => $nameParts[0],
                 'last_name'       => $nameParts[1] ?? '',
                 'email'           => $request->email,
                 'document_number' => $request->cpf,
-                'id_card'         => $request->id_card,
                 'phone'           => $request->phone,
-                'zip_code'        => $request->zip_code,
-                'address'         => $request->address,
                 'due_day'         => $request->due_day,
-                'is_active'       => $request->is_active === 'active',
-            ];
+                'is_active'       => $request->is_active === 'active', // Converte string para booleano
+            ]);
 
-            $customer->update($data);
-            return redirect()->route('admin.monthly_customers.index')->with('success', 'Usuário atualizado com sucesso!');
+            return redirect()->route('admin.monthly_customers.index')->with('success', 'Mensalista atualizado com sucesso!');
         } catch (\Exception $e) {
             Log::error("Erro ao atualizar: " . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', 'Falha ao atualizar.');
+            return redirect()->back()->withInput()->with('error', 'Falha ao atualizar: ' . $e->getMessage());
         }
     }
 

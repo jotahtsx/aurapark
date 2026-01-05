@@ -33,6 +33,7 @@ class MonthlyCustomer extends Model
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
         'monthly_fee' => 'decimal:2',
         'due_day' => 'integer',
     ];
