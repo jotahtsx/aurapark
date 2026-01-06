@@ -87,7 +87,6 @@
                                 <i data-lucide="edit-3" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
                             </button>
 
-                            {{-- Botão Deletar - Design Mecânico --}}
                             <form action="{{ route('admin.monthly_customers.destroy', $customer->id) }}" method="POST" onsubmit="return confirm('Confirmar exclusão?');">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer group border-none outline-none bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white">
@@ -99,7 +98,24 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-10 opacity-30 text-xs font-bold uppercase tracking-widest">Nenhum registro encontrado.</td>
+                    <td colspan="5" class="py-28 text-center">
+                        <div class="flex flex-col items-center justify-center w-full">
+
+                            <div class="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center mb-6">
+                                <i data-lucide="users-round" class="w-10 h-10 opacity-20 text-base-content"></i>
+                            </div>
+
+                            <div class="max-w-xs mx-auto text-center">
+                                <h3 class="font-black text-lg text-base-content/50 tracking-tight">
+                                    Nenhum mensalista encontrado
+                                </h3>
+                                <p class="text-[12px] text-base-content/30 italic mt-2 leading-relaxed">
+                                    Sua busca não retornou resultados. <br>
+                                    Tente outros termos ou cadastre um novo mensalista.
+                                </p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
@@ -299,6 +315,14 @@
 </dialog>
 
 <script>
+    function formatarCPF(v) {
+        v = v.replace(/\D/g, "");
+        if (v.length > 11) v = v.substring(0, 11);
+        return v.replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    }
+
     function openEditModal(button) {
         const id = button.dataset.id;
         const form = document.getElementById('edit_customer_form');
@@ -308,7 +332,10 @@
 
         document.getElementById('edit_name').value = button.dataset.name;
         document.getElementById('edit_email').value = button.dataset.email;
-        document.getElementById('edit_cpf').value = button.dataset.cpf;
+        
+        const cpfBruto = button.dataset.cpf;
+        document.getElementById('edit_cpf').value = formatarCPF(cpfBruto);
+        
         document.getElementById('edit_phone').value = button.dataset.phone;
 
         const dueDay = button.dataset.due;
@@ -323,5 +350,9 @@
 
         edit_customer_modal.showModal();
     }
+
+    document.getElementById('edit_cpf').addEventListener('input', function(e) {
+        e.target.value = formatarCPF(e.target.value);
+    });
 </script>
 @endsection
